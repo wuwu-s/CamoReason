@@ -1,0 +1,45 @@
+name: split-baseline-weights
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/split-baseline-weights.yml'
+permissions:
+  contents: write
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download big weights from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p big
+          cd big
+          gh release download baselines-weights -R ${{ github.repository }} \
+            -p "FSPNet_best_0.01137.pth" -p "PFNet.pth" \
+            -p "SINet_40.pth" -p "res2net50_v1b_26w_4s-3cf99910.pth" --clobber
+          ls -la
+      - name: Split into 90MB chunks
+        run: |
+          cd big
+          for f in *.pth; do
+            if [ $(stat -c%s "$f") -gt 94371840 ]; then
+              split -b 94371840 -d "$f" "$f.part"
+            else
+              cp "$f" "$f.part00"
+            fi
+          done
+          sha256sum *.pth > sha256.txt
+          ls -la
+      - name: Upload chunks to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view baselines-chunks -R ${{ github.repository }} >/dev/null 2>&1; then
+            gh release create baselines-chunks -R ${{ github.repository }} \
+              --title "baselines weights chunks" --notes "大权重 90MB 分片（网络受限中转）"
+          fi
+          gh release upload baselines-chunks big/*.part* big/sha256.txt \
+            -R ${{ github.repository }} --clobber
