@@ -1,0 +1,7 @@
+save/
+train.log
+run_qwen_camoreason.py
+run_qwen_gtbox.py
+__pycache__/
+*.pyc
+.idea/
