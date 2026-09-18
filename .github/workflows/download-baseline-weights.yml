@@ -1,6 +1,9 @@
 name: download-baseline-weights
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/download-baseline-weights.yml'
 permissions:
   contents: write
 jobs:
