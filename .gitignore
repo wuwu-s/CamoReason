@@ -1,0 +1,13 @@
+save/
+train.log
+run_qwen_camoreason.py
+run_qwen_gtbox.py
+__pycache__/
+*.pyc
+.idea/
+
+# machine-specific operational artifacts (2026-10-03)
+save
+chunks/
+run_*.sh
+watch_*.sh

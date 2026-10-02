@@ -1,0 +1,30 @@
+name: chunks-to-branch
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/chunks-to-branch.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download chunks from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p chunks
+          gh release download baselines-chunks -R ${{ github.repository }} -D chunks --clobber
+          ls -la chunks
+      - name: Commit chunks to branch weights-chunks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout -B weights-chunks
+          git add chunks/
+          git commit -m "chunks for transit (auto)" || true
+          git push -f origin weights-chunks

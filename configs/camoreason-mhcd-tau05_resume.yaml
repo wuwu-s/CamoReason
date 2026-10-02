@@ -1,0 +1,65 @@
+train_dataset:
+  batch_size: 8
+  num_workers: 8
+  args:
+    root: /root/autodl-tmp/MHCD2026
+    split: train
+    inp_size: 1008
+    augment: false
+    limit: 0
+
+val_dataset:
+  batch_size: 8
+  num_workers: 8
+  args:
+    root: /root/autodl-tmp/MHCD2026
+    split: val
+    inp_size: 1008
+    augment: false
+    limit: 0
+
+test_dataset:
+  batch_size: 8
+  num_workers: 8
+  args:
+    root: /root/autodl-tmp/MHCD2026
+    split: test
+    inp_size: 1008
+    augment: false
+    limit: 0
+
+model:
+  name: camoreason
+  args:
+    inp_size: 1008
+    d_multi: 512
+    vit_depth: 32
+    vit_stages: 4
+    bottleneck: 32
+    film_hidden: 256
+    ff_ch: 128
+    n_fpn_levels: 3
+    lambda_iou: 1.0
+    lambda_con: 0.1
+    lambda_gate: 0.1
+    lambda_tv: 0.1
+    tau: 0.5          # was 0.07: InfoNCE saturated, Eq.7 never trained
+    focal_alpha: 0.25
+    focal_gamma: 2.0
+
+optimizer:
+  name: adamw
+  args:
+    lr: 1.13e-4       # original cosine value at ep35 (warmup 0 resume recipe)
+    weight_decay: 0.01
+
+epoch_max: 44
+epoch_val: 2
+early_stop: 5
+warmup_epochs: 0     # resume: no warmup, continue the cosine tail
+accum_steps: 3
+lr_min: 1.0e-6
+eval_type: cod
+
+sam_checkpoint: /root/SAM3-Adapter/save/_camoreason-mhcd/model_epoch_best.pth
+resume: 34

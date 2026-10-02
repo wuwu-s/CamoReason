@@ -1,0 +1,35 @@
+name: download-baseline-weights
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/download-baseline-weights.yml'
+permissions:
+  contents: write
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install gdown
+        run: pip install gdown
+      - name: Download weights from Google Drive
+        run: |
+          mkdir -p weights
+          cd weights
+          gdown 136-nbdodomrfO0TcHah84W9gA-PHJDfZ -O DGNet.pth
+          gdown 1XrUOmgB86L84JefoNq0gq2scBZjGaTkm -O Net_epoch_best.pth
+          gdown 1_1N-cx1UpRQo7Ybsjno1PAg4KE1T9e5J -O res2net50_v1b_26w_4s-3cf99910.pth
+          gdown 10viPCyjGE919gNtyNdSp2YhnvEXCMVe8 -O PFNet.pth
+          gdown 1yh5hKNvFSt9v65Av6ybQ-aVmIc_hpOd5 -O FSPNet_best_0.01137.pth
+          gdown 1iCkHXU55Or4gEtSqesijea6A5r8lVEYv -O SINet_40.pth
+          gdown 1zG7FjmYwpSagjXG3yhLUA5sjlvEvQvJl -O C2FNet-39.pth
+          ls -la
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view baselines-weights --repo ${{ github.repository }} >/dev/null 2>&1; then
+            gh release create baselines-weights --repo ${{ github.repository }} --title "baselines weights" --notes "COD 模型官方权重（GDrive 中转下载）"
+          fi
+          gh release upload baselines-weights weights/*.pth --repo ${{ github.repository }} --clobber
