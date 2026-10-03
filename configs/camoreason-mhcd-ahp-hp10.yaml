@@ -1,3 +1,13 @@
+train_dataset:
+  batch_size: 8
+  num_workers: 8
+  args:
+    root: /root/autodl-tmp/MHCD2026
+    split: train
+    inp_size: 1008
+    augment: false
+    limit: 0            # 0 = full split; smoke test: 24
+
 val_dataset:
   batch_size: 8
   num_workers: 8
